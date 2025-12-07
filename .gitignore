@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+screener_raw.html
+fetch_test.py

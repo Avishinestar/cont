@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nifty 500 Bids & Contracts</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-gradients"></div>
+
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <span class="logo-icon">💠</span>
+                <h1><span class="highlight animated-text">Avishinestar</span> Nifty contracts</h1>
+            </div>
+            <p class="subtitle">Live tracking of Nifty 500 orders, bids, and wins.</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="switchTab('recent')">
+                🔥 This Week <span id="recent-count" class="badge">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('archive')">
+                📂 Archive <span id="archive-count" class="badge">0</span>
+            </button>
+        </nav>
+
+        <main id="content-grid" class="card-grid">
+            <!-- Cards will be injected here -->
+        </main>
+
+        <footer>
+            <p>Data simulated for demonstration. Based on Nifty 500 universe.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
