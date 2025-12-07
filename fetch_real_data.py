@@ -7,7 +7,11 @@ from datetime import datetime
 import time
 import random
 
-SESSION_ID = "5g2qn8o64kp5d7e6m09gkck5jfi5lvxw"
+import os
+
+# Get session ID from environment variable, fallback to hardcoded (or empty) for local testing if needed.
+# CRITICAL: In GitHub Actions, you must set 'SCREENER_SESSION_ID' in Repo Secrets.
+SESSION_ID = os.environ.get("SCREENER_SESSION_ID", "5g2qn8o64kp5d7e6m09gkck5jfi5lvxw")
 URL = "https://www.screener.in/full-text-search/?q=order"
 
 headers = {
