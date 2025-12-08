@@ -11,7 +11,15 @@ import os
 
 # Get session ID from environment variable, fallback to hardcoded (or empty) for local testing if needed.
 # CRITICAL: In GitHub Actions, you must set 'SCREENER_SESSION_ID' in Repo Secrets.
-SESSION_ID = os.environ.get("SCREENER_SESSION_ID", "5g2qn8o64kp5d7e6m09gkck5jfi5lvxw")
+# Get session ID from environment variable, fallback to hardcoded (or empty) for local testing if needed.
+# CRITICAL: In GitHub Actions, you must set 'SCREENER_SESSION_ID' in Repo Secrets.
+SESSION_ID = os.environ.get("SCREENER_SESSION_ID", "")
+if not SESSION_ID:
+    # Fallback to the hardcoded one if env var is missing (for local dev)
+    SESSION_ID = "5g2qn8o64kp5d7e6m09gkck5jfi5lvxw"
+
+print(f"DEBUG: Script started. Session ID present: {'Yes' if SESSION_ID else 'No'}")
+print(f"DEBUG: Session ID starts with: {SESSION_ID[:4]}..." if SESSION_ID else "DEBUG: No Session ID")
 URL = "https://www.screener.in/full-text-search/?q=order"
 
 headers = {
@@ -183,3 +191,4 @@ if __name__ == "__main__":
         print(f"Successfully extracted {len(data)} records to data.json")
     else:
         print("No data found or error occurred.")
+        raise Exception("Fetch failed: No data found. Check SESSION_ID validity or screener.in accessibility.")
