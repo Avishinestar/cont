@@ -2,8 +2,8 @@ name: Update Dashboard Data
 
 on:
   schedule:
-    # Runs at 00:00 UTC every day (5:30 AM IST)
-    - cron: '0 0 * * *'
+    # Runs every 30 minutes
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 permissions:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - name: Checkout code
