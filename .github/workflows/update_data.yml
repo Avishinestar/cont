@@ -4,6 +4,8 @@ on:
   schedule:
     # Runs every 30 minutes
     - cron: '*/30 * * * *'
+  push:
+    branches: ["gh-pages", "main"]
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 permissions:
@@ -17,6 +19,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        ref: gh-pages
 
     - name: Set up Python
       uses: actions/setup-python@v4
