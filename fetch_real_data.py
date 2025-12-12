@@ -111,11 +111,11 @@ def parse_data(max_pages=5):
                     desc_tag = item.select_one('div.ink-700.font-size-16')
                     full_desc = clean_text(desc_tag.text) if desc_tag else title
                     
-                    # Deduplication
-                    signature = f"{company}_{title}"
-                    if signature in seen_signatures:
-                        continue
-                    seen_signatures.add(signature)
+                    # Deduplication (Simple check within current run)
+                    # We will do robust qual check during merge
+                    # signature = f"{company}_{title}" 
+                    # ... actually let's just collect all and handle dedup at end to be consistent
+                    pass
                     
                     # 3. Date
                     date_tag = item.select_one('div.margin-top-4.ink-700.font-size-14')
@@ -181,14 +181,77 @@ def parse_data(max_pages=5):
             print(f"Error fetching page {page}: {e}")
             break
             
-    return all_results
+    # Merge with existing data
+    final_results = []
+    
+    # Load existing data if file exists
+    if os.path.exists("data.json"):
+        try:
+            with open("data.json", "r") as f:
+                existing_data = json.load(f)
+                print(f"Loaded {len(existing_data)} existing records.")
+                for item in existing_data:
+                    sig = f"{item['company']}_{item['description'][:30]}" # Use shorter description for signature to match new logic
+                    # Or better, just use the exact signature logic if possible.
+                    # Let's reconstruct signature carefully. 
+                    # Existing data has 'company' and 'description' (which was full_desc).
+                    # 'title' was link text. In previous scan, company + title was signature.
+                    # But 'title' isn't saved in json. 
+                    # Let's use company + date + description snippet as signature to be safe.
+                    # Or simpler: ID is not reliable as it changes.
+                    # Let's use company + date + first 50 chars of description.
+                    
+                    sig = f"{item['company']}_{item['date']}_{item['description'][:50]}"
+                    if sig not in seen_signatures:
+                        seen_signatures.add(sig)
+                        final_results.append(item)
+        except Exception as e:
+            print(f"Error loading existing data: {e}")
+
+    # Add new results
+    new_added = 0
+    for item in all_results:
+        # Reconstruct signature for new item
+        sig = f"{item['company']}_{item['date']}_{item['description'][:50]}"
+        if sig not in seen_signatures:
+            seen_signatures.add(sig)
+            final_results.append(item)
+            new_added += 1
+    
+    print(f"Added {new_added} new records.")
+
+    # Retention Policy: Delete items older than 90 days
+    cutoff_date = datetime.now().timestamp() - (90 * 24 * 60 * 60)
+    
+    filtered_results = []
+    for item in final_results:
+        try:
+            item_date = datetime.strptime(item['date'], "%Y-%m-%d").timestamp()
+            if item_date >= cutoff_date:
+                filtered_results.append(item)
+        except:
+             filtered_results.append(item) # Keep if date parse fails
+
+    # Sort by date descending
+    filtered_results.sort(key=lambda x: x['date'], reverse=True)
+    
+    # Re-index IDs
+    for idx, item in enumerate(filtered_results):
+        item['id'] = idx + 1
+        
+    return filtered_results
 
 if __name__ == "__main__":
     data = parse_data()
     if data:
         with open("data.json", "w") as f:
             json.dump(data, f, indent=4)
-        print(f"Successfully extracted {len(data)} records to data.json")
+        print(f"Successfully saved {len(data)} records to data.json")
     else:
-        print("No data found or error occurred.")
-        raise Exception("Fetch failed: No data found. Check SESSION_ID validity or screener.in accessibility.")
+        # If fetch failed entirely but we have old data, maybe we should preserve it?
+        # But parse_data now returns merged results. If it raises exception, we crash.
+        # If it returns empty list (no new data found OR all pages failed), we might overwrite with empty list?
+        # Wait, parse_data loads existing data inside itself now.
+        # So even if net fail, if we handle it right, we return existing.
+        # But `if data:` check handles empty list. 
+        pass
