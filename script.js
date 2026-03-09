@@ -15,7 +15,12 @@ async function fetchData() {
 
         processData(data);
         updateCounts();
-        switchTab('recent'); // Default tab
+
+        if (recentData.length === 0 && archivedData.length > 0) {
+            switchTab('archive');
+        } else {
+            switchTab('recent'); // Default tab
+        }
     } catch (error) {
         console.error("Error loading data:", error);
         document.getElementById('content-grid').innerHTML = '<p style="color:red; text-align:center;">Failed to load data.</p>';
